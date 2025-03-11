@@ -4,6 +4,7 @@ const session = require('express-session');
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const axios = require('axios');
+const flash = require('connect-flash');
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 
 app.set('view engine', 'ejs');
 
@@ -51,6 +53,42 @@ const checkVPN = async (req, res, next) => {
   }
 };
 
+const generateRandomPassword = (length = 10) => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return password;
+};
+
+const createUserOnPterodactyl = async (email, username, password) => {
+  try {
+    const response = await axios.post(`${process.env.PTERODACTYL_PANEL_URL}/api/application/users`, {
+      email: email,
+      username: username,
+      first_name: username.split('#')[0],
+      last_name: username.split('#')[1],
+      password: password
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.PTERODACTYL_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'Application/vnd.pterodactyl.v1+json'
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating user on Pterodactyl:', error);
+    throw error;
+  }
+};
+
+app.use((req, res, next) => {
+  res.locals.messages = req.flash();
+  next();
+});
+
 app.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.redirect('/dashboard');
@@ -62,8 +100,24 @@ app.get('/', (req, res) => {
 app.get('/auth/discord', checkVPN, passport.authenticate('discord'));
 
 app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedirect: '/' }),
-  (req, res) => {
-    res.redirect('/dashboard');
+  async (req, res) => {
+    if (req.isAuthenticated()) {
+      const user = req.user;
+      const email = user.emails[0].value;
+      const username = user.username;
+      const password = generateRandomPassword();
+
+      try {
+        await createUserOnPterodactyl(email, username, password);
+        req.flash('info', `Your Pterodactyl account has been created. Your password is: ${password}`);
+        res.redirect('/dashboard');
+      } catch (error) {
+        console.error('Error creating user on Pterodactyl:', error);
+        res.status(500).send('Error creating Pterodactyl account. Please try again later.');
+      }
+    } else {
+      res.redirect('/');
+    }
   });
 
 app.get('/dashboard', (req, res) => {
