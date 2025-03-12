@@ -5,6 +5,7 @@ const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const axios = require('axios');
 const flash = require('connect-flash');
+const faker = require('faker');
 
 const app = express();
 
@@ -27,6 +28,7 @@ passport.use(new DiscordStrategy({
   scope: ['identify', 'email']
 },
 (accessToken, refreshToken, profile, done) => {
+  console.log('Discord Profile:', profile);
   return done(null, profile);
 }));
 
@@ -54,7 +56,7 @@ const checkVPN = async (req, res, next) => {
 };
 
 const generateRandomPassword = (length = 10) => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+  const characters = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm1234567890';
   let password = '';
   for (let i = 0; i < length; i++) {
     password += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -63,18 +65,21 @@ const generateRandomPassword = (length = 10) => {
 };
 
 const createUserOnPterodactyl = async (email, username, password) => {
+  const firstName = faker.name.firstName();
+  const lastName = faker.name.lastName();
+
   try {
     const response = await axios.post(`${process.env.PTERODACTYL_PANEL_URL}/api/application/users`, {
       email: email,
       username: username,
-      first_name: username.split('#')[0],
-      last_name: username.split('#')[1],
+      first_name: firstName,
+      last_name: lastName,
       password: password
     }, {
       headers: {
         'Authorization': `Bearer ${process.env.PTERODACTYL_API_KEY}`,
         'Content-Type': 'application/json',
-        'Accept': 'Application/vnd.pterodactyl.v1+json'
+        'Accept': 'application/json'
       }
     });
     return response.data;
@@ -103,7 +108,14 @@ app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedi
   async (req, res) => {
     if (req.isAuthenticated()) {
       const user = req.user;
-      const email = user.emails[0].value;
+      console.log('User Profile:', user);
+
+      const email = user.emails && user.emails.length > 0 ? user.emails[0].value : user.email;
+
+      if (!email) {
+        return res.status(400).send('Email is not available from Discord. Please ensure your Discord account has an email associated with it.');
+      }
+
       const username = user.username;
       const password = generateRandomPassword();
 
