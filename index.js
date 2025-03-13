@@ -97,6 +97,10 @@ const createUserOnPterodactyl = async (email, username, password) => {
   }
 };
 
+const sanitizeUsername = (username) => {
+  return username.replace(/[^a-zA-Z0-9]/g, '');
+};
+
 app.use((req, res, next) => {
   res.locals.messages = req.flash();
   next();
@@ -124,7 +128,7 @@ app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedi
         return res.status(400).send('Email is not available from Discord. Please ensure your Discord account has an email associated with it.');
       }
 
-      const username = user.username;
+      const username = sanitizeUsername(user.username);
       const password = generateRandomPassword();
 
       try {
