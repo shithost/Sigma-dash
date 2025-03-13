@@ -150,7 +150,18 @@ app.get('/', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('dashboard', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/dashboard' });
+    const user = req.user;
+    const users = readUsers();
+    const userDetails = users[user.id] || {};
+
+    res.render('dashboard', { 
+      hostingName: process.env.HOSTING_NAME, 
+      user: req.user, 
+      activeRoute: '/dashboard', 
+      cpu: userDetails.cpu, 
+      ram: userDetails.ram, 
+      disk: userDetails.disk 
+    });
   } else {
     res.redirect('/');
   }
@@ -158,7 +169,18 @@ app.get('/dashboard', (req, res) => {
 
 app.get('/servers', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('servers', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/servers' });
+    const user = req.user;
+    const users = readUsers();
+    const userDetails = users[user.id] || {};
+
+    res.render('servers', { 
+      hostingName: process.env.HOSTING_NAME, 
+      user: req.user, 
+      activeRoute: '/servers', 
+      cpu: userDetails.cpu, 
+      ram: userDetails.ram, 
+      disk: userDetails.disk 
+    });
   } else {
     res.redirect('/');
   }
@@ -182,7 +204,18 @@ app.get('/earn', (req, res) => {
 
 app.get('/account', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('account', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/account' });
+    const user = req.user;
+    const users = readUsers();
+    const userDetails = users[user.id] || {};
+
+    res.render('account', { 
+      hostingName: process.env.HOSTING_NAME, 
+      user: req.user, 
+      activeRoute: '/account', 
+      cpu: userDetails.cpu, 
+      ram: userDetails.ram, 
+      disk: userDetails.disk 
+    });
   } else {
     res.redirect('/');
   }
