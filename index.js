@@ -113,6 +113,28 @@ const checkUserExistsByEmail = async (email) => {
   }
 };
 
+const readUsers = () => {
+  try {
+    const data = fs.readFileSync(path.join(__dirname, 'users.json'), 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return {};
+    }
+    console.error('Error reading users.json:', error);
+    throw error;
+  }
+};
+
+const writeUsers = (users) => {
+  try {
+    fs.writeFileSync(path.join(__dirname, 'users.json'), JSON.stringify(users, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error writing users.json:', error);
+    throw error;
+  }
+};
+
 app.use((req, res, next) => {
   res.locals.messages = req.flash();
   next();
@@ -197,7 +219,18 @@ app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedi
           return res.redirect('/dashboard');
         }
 
-        await createUserOnPterodactyl(email, username, password);
+        const pterodactylUser = await createUserOnPterodactyl(email, username, password);
+        const pterodactylUserId = pterodactylUser.attributes.id;
+
+        const users = readUsers();
+        users[user.id] = {
+          email: email,
+          password: password,
+          id: pterodactylUserId
+        };
+
+        writeUsers(users);
+
         req.flash('info', `Your Pterodactyl account has been created. Your password is: ${password}`);
         res.redirect('/dashboard');
       } catch (error) {
