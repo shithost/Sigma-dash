@@ -4,16 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= hostingName %></title>
+  <link rel="stylesheet" href="/css/sidebar.css">
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
       margin: 0;
       color: #333333;
+      position: relative;
     }
     .container {
       background-color: #ffffff;
@@ -22,6 +20,7 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       text-align: center;
       width: 300px;
+      margin: 20px auto;
     }
     .sidebar {
       position: fixed;
@@ -50,30 +49,54 @@
     .sidebar ul li a:hover {
       background-color: #f0f0f0;
     }
+    .sidebar ul li.active a {
+      font-weight: bold;
+      color: #ff6347;
+      background-color: #f0f0f0;
+    }
     .main-content {
       margin-left: 270px;
-      width: calc(100% - 270px);
+      padding-top: 20px; /* Adjust padding to ensure content is below the top margin */
     }
-    .info {
-      margin-bottom: 20px;
-      color: #28a745;
+    .info-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      opacity: 1;
+      transition: opacity 0.5s;
     }
-    .sidebar ul li.active a {
-    font-weight: bold;
-    color: #ff6347;
-    background-color: #f0f0f0;
-  }
+    .info-popup.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <%- include('./parts/sidebar.ejs'); %>
   <div class="main-content">
+    <h1>Welcome to <%= hostingName %>, <%= user.username %>!</h1>
     <div class="container">
-      <h1>Welcome to <%= hostingName %>, <%= user.username %>!</h1>
       <% if (messages.info) { %>
-        <div class="info"><%= messages.info %></div>
+        <div class="info-popup" id="infoPopup"><%= messages.info %></div>
       <% } %>
     </div>
   </div>
+  <%- include('./parts/sidebar.ejs'); %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const infoPopup = document.getElementById('infoPopup');
+      if (infoPopup) {
+        setTimeout(() => {
+          infoPopup.classList.add('hidden');
+        }, 2000);
+      }
+    });
+  </script>
 </body>
 </html>
