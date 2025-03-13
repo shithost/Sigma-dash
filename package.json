@@ -26,6 +26,7 @@
     "faker": "^5.5.3",
     "fs": "^0.0.1-security",
     "passport": "^0.7.0",
-    "passport-discord": "^0.1.4"
+    "passport-discord": "^0.1.4",
+    "path": "^0.12.7"
   }
 }

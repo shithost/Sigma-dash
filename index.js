@@ -6,8 +6,12 @@ const DiscordStrategy = require('passport-discord').Strategy;
 const axios = require('axios');
 const flash = require('connect-flash');
 const faker = require('faker');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
+
+const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -41,6 +45,10 @@ passport.deserializeUser((obj, done) => {
 });
 
 const checkVPN = async (req, res, next) => {
+  if (!config.vpncheck) {
+    return next();
+  }
+
   const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   try {
     const response = await axios.get(`http://proxycheck.io/v2/${ip}?key=${process.env.PROXYCHECK_API_KEY}&vpn=1&proxy=1&asn=1&node=1&port=1&seen=1&inf=1&days=180`);
