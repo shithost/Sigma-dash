@@ -97,6 +97,22 @@ const createUserOnPterodactyl = async (email, username, password) => {
   }
 };
 
+const checkUserExistsByEmail = async (email) => {
+  try {
+    const response = await axios.get(`${process.env.PTERODACTYL_PANEL_URL}/api/application/users?filter[email]=${encodeURIComponent(email)}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.PTERODACTYL_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    return response.data.data.length > 0;
+  } catch (error) {
+    console.error('Error checking user existence on Pterodactyl:', error);
+    throw error;
+  }
+};
+
 const sanitizeUsername = (username) => {
   return username.replace(/[^a-zA-Z0-9]/g, '');
 };
@@ -110,8 +126,55 @@ app.get('/', (req, res) => {
   if (req.isAuthenticated()) {
     res.redirect('/dashboard');
   } else {
-    res.render('index', { hostingName: process.env.HOSTING_NAME || 'Default Hosting Name' });
+    res.render('index', { hostingName: process.env.HOSTING_NAME || 'Default Hosting Name', activeRoute: '/' });
   }
+});
+
+app.get('/dashboard', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('dashboard', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/dashboard' });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/servers', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('servers', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/servers' });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/store', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('store', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/store' });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/earn', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('earn', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/earn' });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/account', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('account', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/account' });
+  } else {
+    res.redirect('/');
+  }
+});
+
+app.get('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) { return next(err); }
+    res.redirect('/');
+  });
 });
 
 app.get('/auth/discord', checkVPN, passport.authenticate('discord'));
@@ -132,6 +195,12 @@ app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedi
       const password = generateRandomPassword();
 
       try {
+        const userExists = await checkUserExistsByEmail(email);
+        if (userExists) {
+          req.flash('info', 'Your Pterodactyl account already exists.');
+          return res.redirect('/dashboard');
+        }
+
         await createUserOnPterodactyl(email, username, password);
         req.flash('info', `Your Pterodactyl account has been created. Your password is: ${password}`);
         res.redirect('/dashboard');
@@ -143,21 +212,6 @@ app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedi
       res.redirect('/');
     }
   });
-
-app.get('/dashboard', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.render('dashboard', { hostingName: process.env.HOSTING_NAME, user: req.user });
-  } else {
-    res.redirect('/');
-  }
-});
-
-app.get('/logout', (req, res) => {
-  req.logout((err) => {
-    if (err) { return next(err); }
-    res.redirect('/');
-  });
-});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
