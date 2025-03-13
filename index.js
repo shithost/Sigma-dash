@@ -222,11 +222,18 @@ app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedi
         const pterodactylUser = await createUserOnPterodactyl(email, username, password);
         const pterodactylUserId = pterodactylUser.attributes.id;
 
+        const defaultCpu = config['default-cpu'];
+        const defaultRam = config['default-ram'];
+        const defaultDisk = config['default-disk'];
+
         const users = readUsers();
         users[user.id] = {
           email: email,
           password: password,
-          id: pterodactylUserId
+          id: pterodactylUserId,
+          cpu: defaultCpu,
+          ram: defaultRam,
+          disk: defaultDisk
         };
 
         writeUsers(users);
