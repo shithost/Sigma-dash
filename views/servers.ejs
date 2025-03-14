@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= hostingName %></title>
+  <title><%= hostingName %> - Servers</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     body {
@@ -151,6 +151,31 @@
       margin-top: 20px;
       margin-bottom: 20px;
     }
+
+    .server-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .server-item {
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 10px 0;
+      padding: 20px;
+      width: 80%;
+      text-align: left;
+    }
+
+    .server-item h3 {
+      margin: 0;
+      font-size: 1.2em;
+    }
+
+    .server-item p {
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -159,6 +184,20 @@
   <div class="main-content">
     <div class="page-header">
       <h1>Your Servers</h1>
+    </div>
+    <div class="server-list">
+      <% if (servers.length > 0) { %>
+        <% servers.forEach(server => { %>
+          <div class="server-item">
+            <h3><%= server.attributes.name %></h3>
+            <p>Identifier: <%= server.attributes.identifier %></p>
+            <p>Node: <%= server.attributes.node %></p>
+            <!-- Add more server details as needed -->
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p>You have no servers.</p>
+      <% } %>
     </div>
   </div>
 

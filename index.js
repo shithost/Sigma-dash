@@ -157,6 +157,33 @@ const writeUsers = (users) => {
   }
 };
 
+const getAllServers = async () => {
+  try {
+    const response = await axios.get(`${process.env.PTERODACTYL_PANEL_URL}/api/application/servers`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.PTERODACTYL_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error('Error fetching all servers:', error);
+    throw error;
+  }
+};
+
+const getUserServers = async (pterodactylUserId) => {
+  try {
+    const allServers = await getAllServers();
+    const userServers = allServers.filter(server => server.attributes.user === pterodactylUserId);
+    return userServers;
+  } catch (error) {
+    console.error('Error fetching user servers:', error);
+    throw error;
+  }
+};
+
 app.use((req, res, next) => {
   res.locals.messages = req.flash();
   next();
@@ -183,7 +210,7 @@ app.get('/dashboard', (req, res) => {
       cpu: userDetails.cpu, 
       ram: userDetails.ram, 
       disk: userDetails.disk,
-      coins: userDetails.coins // Add coins here
+      coins: userDetails.coins
     });
   } else {
     res.redirect('/');
@@ -196,15 +223,27 @@ app.get('/servers', (req, res) => {
     const users = readUsers();
     const userDetails = users[user.id] || {};
 
-    res.render('servers', { 
-      hostingName: process.env.HOSTING_NAME, 
-      user: req.user, 
-      activeRoute: '/servers', 
-      cpu: userDetails.cpu, 
-      ram: userDetails.ram, 
-      disk: userDetails.disk,
-      coins: userDetails.coins // Add coins here
-    });
+    if (!userDetails.id) {
+      return res.status(400).send('Pterodactyl user ID not found.');
+    }
+
+    getUserServers(userDetails.id)
+      .then(servers => {
+        res.render('servers', { 
+          hostingName: process.env.HOSTING_NAME, 
+          user: req.user, 
+          activeRoute: '/servers', 
+          cpu: userDetails.cpu, 
+          ram: userDetails.ram, 
+          disk: userDetails.disk,
+          coins: userDetails.coins, 
+          servers: servers || []
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching user servers:', error);
+        res.status(500).send('Error fetching your servers. Please try again later.');
+      });
   } else {
     res.redirect('/');
   }
@@ -212,7 +251,7 @@ app.get('/servers', (req, res) => {
 
 app.get('/store', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('store', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/store', coins: req.user.coins }); // Add coins here
+    res.render('store', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/store', coins: req.user.coins });
   } else {
     res.redirect('/');
   }
@@ -220,7 +259,7 @@ app.get('/store', (req, res) => {
 
 app.get('/earn', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('earn', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/earn', coins: req.user.coins }); // Add coins here
+    res.render('earn', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/earn', coins: req.user.coins });
   } else {
     res.redirect('/');
   }
@@ -239,7 +278,7 @@ app.get('/account', (req, res) => {
       cpu: userDetails.cpu, 
       ram: userDetails.ram, 
       disk: userDetails.disk,
-      coins: userDetails.coins // Add coins here
+      coins: userDetails.coins
     });
   } else {
     res.redirect('/');
@@ -259,7 +298,7 @@ app.get('/auth/discord/callback', passport.authenticate('discord', { failureRedi
   async (req, res) => {
     if (req.isAuthenticated()) {
       const user = req.user;
-      console.log('User Profile:', user);
+      console.log('Discord Profile:', user);
 
       const email = user.emails && user.emails.length > 0 ? user.emails[0].value : user.email;
 
