@@ -2,5 +2,6 @@
     "vpncheck": false,
     "default-cpu": "100",
     "default-ram": "2048",
-    "default-disk": "5012"
+    "default-disk": "5012",
+    "default-coins": 100
 }

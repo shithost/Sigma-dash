@@ -90,7 +90,29 @@ const createUserOnPterodactyl = async (email, username, password) => {
         'Accept': 'application/json'
       }
     });
-    return response.data;
+
+    const pterodactylUser = response.data;
+    const pterodactylUserId = pterodactylUser.attributes.id;
+
+    const defaultCpu = config['default-cpu'];
+    const defaultRam = config['default-ram'];
+    const defaultDisk = config['default-disk'];
+    const defaultCoins = config['default-coins'] || 0;
+
+    const users = readUsers();
+    users[user.id] = {
+      email: email,
+      password: password,
+      id: pterodactylUserId,
+      cpu: defaultCpu,
+      ram: defaultRam,
+      disk: defaultDisk,
+      coins: defaultCoins
+    };
+
+    writeUsers(users);
+
+    return pterodactylUser;
   } catch (error) {
     console.error('Error creating user on Pterodactyl:', error);
     throw error;
@@ -160,7 +182,8 @@ app.get('/dashboard', (req, res) => {
       activeRoute: '/dashboard', 
       cpu: userDetails.cpu, 
       ram: userDetails.ram, 
-      disk: userDetails.disk 
+      disk: userDetails.disk,
+      coins: userDetails.coins // Add coins here
     });
   } else {
     res.redirect('/');
@@ -179,7 +202,8 @@ app.get('/servers', (req, res) => {
       activeRoute: '/servers', 
       cpu: userDetails.cpu, 
       ram: userDetails.ram, 
-      disk: userDetails.disk 
+      disk: userDetails.disk,
+      coins: userDetails.coins // Add coins here
     });
   } else {
     res.redirect('/');
@@ -188,7 +212,7 @@ app.get('/servers', (req, res) => {
 
 app.get('/store', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('store', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/store' });
+    res.render('store', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/store', coins: req.user.coins }); // Add coins here
   } else {
     res.redirect('/');
   }
@@ -196,7 +220,7 @@ app.get('/store', (req, res) => {
 
 app.get('/earn', (req, res) => {
   if (req.isAuthenticated()) {
-    res.render('earn', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/earn' });
+    res.render('earn', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/earn', coins: req.user.coins }); // Add coins here
   } else {
     res.redirect('/');
   }
@@ -214,7 +238,8 @@ app.get('/account', (req, res) => {
       activeRoute: '/account', 
       cpu: userDetails.cpu, 
       ram: userDetails.ram, 
-      disk: userDetails.disk 
+      disk: userDetails.disk,
+      coins: userDetails.coins // Add coins here
     });
   } else {
     res.redirect('/');

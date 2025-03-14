@@ -1,10 +1,51 @@
 <div class="sidebar">
-  <ul>
-    <li class="<%= activeRoute === '/dashboard' ? 'active' : '' %>"><a href="/dashboard">Home</a></li>
-    <li class="<%= activeRoute === '/servers' ? 'active' : '' %>"><a href="/servers">Servers</a></li>
-    <li class="<%= activeRoute === '/store' ? 'active' : '' %>"><a href="/store">Store</a></li>
-    <li class="<%= activeRoute === '/earn' ? 'active' : '' %>"><a href="/earn">Earn</a></li>
-    <li class="<%= activeRoute === '/account' ? 'active' : '' %>"><a href="/account">Profile</a></li>
-    <li><a href="/logout">Logout</a></li>
-  </ul>
+  <div class="sidebar-header">
+    <h2><%= hostingName %></h2>
+  </div>
+  <nav class="sidebar-menu">
+    <ul>
+      <li class="<%= activeRoute === '/dashboard' ? 'active' : '' %>">
+        <a href="/dashboard">
+          <i class="fas fa-home"></i>
+          <span>Home</span>
+        </a>
+      </li>
+      <li class="<%= activeRoute === '/servers' ? 'active' : '' %>">
+        <a href="/servers">
+          <i class="fas fa-server"></i>
+          <span>Servers</span>
+        </a>
+      </li>
+      <li class="<%= activeRoute === '/store' ? 'active' : '' %>">
+        <a href="/store">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Store</span>
+        </a>
+      </li>
+      <li class="<%= activeRoute === '/earn' ? 'active' : '' %>">
+        <a href="/earn">
+          <i class="fas fa-chart-line"></i>
+          <span>Earn</span>
+        </a>
+      </li>
+      <li class="<%= activeRoute === '/account' ? 'active' : '' %>">
+        <a href="/account">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+      </li>
+      <li class="logout">
+        <a href="/logout">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </li>
+      <li class="coins">
+        <a href="#">
+          <i class="fas fa-coins"></i>
+          <span>Coins: <%= coins %></span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 </div>

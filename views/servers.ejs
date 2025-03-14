@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= hostingName %></title>
-  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -22,42 +22,112 @@
       width: 300px;
       margin: 20px auto;
     }
+    /* sidebar */
     .sidebar {
       position: fixed;
       top: 0;
       left: 0;
       height: 100%;
       width: 250px;
-      background-color: #ffffff;
+      background-color: #2c3e50;
+      color: #ecf0f1;
+      padding: 20px 0;
       box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      font-family: 'Arial', sans-serif;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      text-align: center;
+      border-bottom: 1px solid #34495e;
+    }
+
+    .sidebar-header h2 {
+      margin: 0;
+      font-size: 1.5em;
+      color: #bdc3c7;
+    }
+
+    .sidebar-menu {
+      padding: 20px;
+      padding-top: 0;
+    }
+
+    .sidebar-menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar-menu li {
+      margin: 5px 0;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 5px;
+    }
+
+    .sidebar-menu li:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .sidebar-menu li.active {
+      background-color: #34495e;
+    }
+
+    .sidebar-menu a {
+      color: #ecf0f1;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 12px;
+    }
+
+    .sidebar-menu a i {
+      margin-right: 10px;
+      font-size: 16px;
+      width: 25px;
+      text-align: center;
+    }
+
+    .sidebar-menu a span {
+      font-weight: 500;
+    }
+
+    .logout {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      border-top: 1px solid #34495e;
       padding-top: 20px;
     }
-    .sidebar ul {
-      list-style-type: none;
-      padding: 0;
+
+    .logout a {
+      color: #e74c3c !important;
     }
-    .sidebar ul li {
-      margin: 10px 0;
+
+    @keyframes sidebarHover {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(5px);
+      }
     }
-    .sidebar ul li a {
-      display: block;
-      padding: 10px 20px;
-      color: #333333;
-      text-decoration: none;
-      transition: background-color 0.3s;
+
+    .sidebar-menu li.active a {
+      color: #3498db !important;
     }
-    .sidebar ul li a:hover {
-      background-color: #f0f0f0;
-    }
-    .sidebar ul li.active a {
-      font-weight: bold;
-      color: #ff6347;
-      background-color: #f0f0f0;
-    }
+
+    /* sidebar ends */
     .main-content {
       margin-left: 270px;
       padding-top: 20px;
+      text-align: center;
     }
+
     .info-popup {
       position: fixed;
       top: 20px;
@@ -71,23 +141,26 @@
       opacity: 1;
       transition: opacity 0.5s;
     }
+
     .info-popup.hidden {
       opacity: 0;
       pointer-events: none;
     }
+
+    .page-header {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
+  <%- include('./parts/sidebar.ejs'); %>
+
   <div class="main-content">
-    <h1>Your Servers</h1>
-    <div class="container">
-      <h2>Your Resource Allocation</h2>
-      <p>CPU: <%= cpu %>%</p>
-      <p>RAM: <%= ram %> MB</p>
-      <p>Disk: <%= disk %> MB</p>
+    <div class="page-header">
+      <h1>Your Servers</h1>
     </div>
   </div>
-  <%- include('./parts/sidebar.ejs'); %>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
