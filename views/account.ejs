@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-  <title><%= hostingName %></title>
+  <title><%= hostingName %> - Account</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -125,6 +125,7 @@
     .main-content {
       margin-left: 270px;
       padding-top: 20px;
+      text-align: center;
     }
     .info-popup {
       position: fixed;
@@ -152,10 +153,11 @@
       <% if (messages.info) { %>
         <div class="info-popup" id="infoPopup"><%= messages.info %></div>
       <% } %>
-      <h2>Your Resource Allocation</h2>
-      <p>CPU: <%= cpu %>%</p>
-      <p>RAM: <%= ram %> MB</p>
-      <p>Disk: <%= disk %> MB</p>
+      <div class="pterodactyl-login-details">
+        <h2>Panel Login Details</h2>
+        <p><strong>Email:</strong> <%= user.email %></p>
+        <p><strong>Password:</strong> <%= user.password %></p>
+      </div>
     </div>
   </div>
   <%- include('./parts/sidebar.ejs'); %>

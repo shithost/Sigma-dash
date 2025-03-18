@@ -257,6 +257,14 @@ app.get('/store', (req, res) => {
   }
 });
 
+app.get('/servers/create', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render('pages/create', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/servers/create', coins: req.user.coins });
+  } else {
+    res.redirect('/');
+  }
+});
+
 app.get('/earn', (req, res) => {
   if (req.isAuthenticated()) {
     res.render('earn', { hostingName: process.env.HOSTING_NAME, user: req.user, activeRoute: '/earn', coins: req.user.coins });
@@ -273,7 +281,7 @@ app.get('/account', (req, res) => {
 
     res.render('account', { 
       hostingName: process.env.HOSTING_NAME, 
-      user: req.user, 
+      user: userDetails,
       activeRoute: '/account', 
       cpu: userDetails.cpu, 
       ram: userDetails.ram, 

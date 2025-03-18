@@ -176,6 +176,22 @@
     .server-item p {
       margin: 5px 0;
     }
+
+    .create-server-button {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      text-decoration: none;
+      font-size: 1em;
+    }
+
+    .create-server-button:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 <body>
@@ -199,6 +215,10 @@
         <p>You have no servers.</p>
       <% } %>
     </div>
+    <a href="/servers/create" class="create-server-button">
+      <i class="fas fa-plus"></i>
+      Create Server
+    </a>
   </div>
 
   <script>
